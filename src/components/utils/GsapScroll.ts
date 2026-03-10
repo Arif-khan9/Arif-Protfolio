@@ -12,7 +12,7 @@ export function setCharTimeline(
 
   let intensity = 0;
 
-  setInterval(() => {
+  const interval = setInterval(() => {
     intensity = Math.random();
   }, 200);
 
@@ -46,19 +46,23 @@ export function setCharTimeline(
     },
   });
 
-  let screenLight: THREE.Mesh | undefined;
-  let monitor: THREE.Mesh | undefined;
+  let screenLight: THREE.Mesh | null = null;
+  let monitor: THREE.Mesh | null = null;
 
   character.children.forEach((object: THREE.Object3D) => {
     if (object.name === "Plane004") {
-      object.children.forEach((child: any) => {
-        if (child.material) {
-          child.material.transparent = true;
-          child.material.opacity = 0;
+      object.children.forEach((child) => {
+        const mesh = child as THREE.Mesh;
 
-          if (child.material.name === "Material.018") {
-            monitor = child;
-            child.material.color?.set("#FFFFFF");
+        if (mesh.material) {
+          const material = mesh.material as THREE.MeshStandardMaterial;
+
+          material.transparent = true;
+          material.opacity = 0;
+
+          if (material.name === "Material.018") {
+            monitor = mesh;
+            material.color.set("#FFFFFF");
           }
         }
       });
@@ -68,11 +72,13 @@ export function setCharTimeline(
       const mesh = object as THREE.Mesh;
 
       if (mesh.material) {
-        (mesh.material as any).transparent = true;
-        (mesh.material as any).opacity = 0;
-        (mesh.material as any).emissive?.set("#B0F5EA");
+        const material = mesh.material as THREE.MeshStandardMaterial;
 
-        gsap.timeline({ repeat: -1, repeatRefresh: true }).to(mesh.material, {
+        material.transparent = true;
+        material.opacity = 0;
+        material.emissive?.set("#B0F5EA");
+
+        gsap.timeline({ repeat: -1, repeatRefresh: true }).to(material, {
           emissiveIntensity: () => intensity * 8,
           duration: () => Math.random() * 0.6,
           delay: () => Math.random() * 0.1,
@@ -108,15 +114,20 @@ export function setCharTimeline(
         { pointerEvents: "none", x: "-12%", delay: 2, duration: 5 },
         0
       )
-      .to(character.rotation, { y: 0.92, x: 0.12, delay: 3, duration: 3 }, 0)
-      .to(neckBone?.rotation || {}, { x: 0.6, delay: 2, duration: 3 }, 0);
+      .to(character.rotation, { y: 0.92, x: 0.12, delay: 3, duration: 3 }, 0);
 
-    if (monitor) {
-      tl2.to((monitor.material as any), { opacity: 1, duration: 0.8, delay: 3.2 }, 0);
+    if (neckBone) {
+      tl2.to(neckBone.rotation, { x: 0.6, delay: 2, duration: 3 }, 0);
     }
 
-    if (screenLight) {
-      tl2.to((screenLight.material as any), { opacity: 1, duration: 0.8, delay: 4.5 }, 0);
+    if (monitor?.material) {
+      const material = monitor.material as THREE.MeshStandardMaterial;
+      tl2.to(material, { opacity: 1, duration: 0.8, delay: 3.2 }, 0);
+    }
+
+    if (screenLight?.material) {
+      const material = screenLight.material as THREE.MeshStandardMaterial;
+      tl2.to(material, { opacity: 1, duration: 0.8, delay: 4.5 }, 0);
     }
 
     tl3
@@ -139,6 +150,8 @@ export function setCharTimeline(
 
     tM2.to(".what-box-in", { display: "flex", duration: 0.1 }, 0);
   }
+
+  return () => clearInterval(interval);
 }
 
 export function setAllTimeline() {
