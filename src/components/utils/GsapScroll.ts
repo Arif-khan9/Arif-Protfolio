@@ -116,14 +116,34 @@ export function setCharTimeline(
       tl2.to(neckBone.rotation, { x: 0.6, delay: 2, duration: 3 }, 0);
     }
 
-    if (monitor) {
-      const material = monitor.material as THREE.MeshStandardMaterial;
-      tl2.to(material, { opacity: 1, duration: 0.8, delay: 3.2 }, 0);
+    const monitorMesh = monitor as THREE.Mesh | null;
+    if (monitorMesh) {
+      const material = monitorMesh.material as THREE.MeshStandardMaterial;
+
+      tl2.to(
+        material,
+        {
+          opacity: 1,
+          duration: 0.8,
+          delay: 3.2,
+        },
+        0
+      );
     }
 
-    if (screenLight) {
-      const material = screenLight.material as THREE.MeshStandardMaterial;
-      tl2.to(material, { opacity: 1, duration: 0.8, delay: 4.5 }, 0);
+    const screenMesh = screenLight as THREE.Mesh | null;
+    if (screenMesh) {
+      const material = screenMesh.material as THREE.MeshStandardMaterial;
+
+      tl2.to(
+        material,
+        {
+          opacity: 1,
+          duration: 0.8,
+          delay: 4.5,
+        },
+        0
+      );
     }
 
     tl3
@@ -149,8 +169,6 @@ export function setCharTimeline(
 
   return () => clearInterval(interval);
 }
-
-/* ---------- ADD THIS FUNCTION ---------- */
 
 export function setAllTimeline() {
   if (typeof window === "undefined") return;
