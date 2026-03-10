@@ -52,16 +52,14 @@ export function setCharTimeline(
   character.children.forEach((object: THREE.Object3D) => {
     if (object.name === "Plane004") {
       object.children.forEach((child) => {
-        const mesh = child as THREE.Mesh;
-
-        if (mesh.material) {
-          const material = mesh.material as THREE.MeshStandardMaterial;
+        if (child instanceof THREE.Mesh) {
+          const material = child.material as THREE.MeshStandardMaterial;
 
           material.transparent = true;
           material.opacity = 0;
 
           if (material.name === "Material.018") {
-            monitor = mesh;
+            monitor = child;
             material.color.set("#FFFFFF");
           }
         }
@@ -69,23 +67,21 @@ export function setCharTimeline(
     }
 
     if (object.name === "screenlight") {
-      const mesh = object as THREE.Mesh;
-
-      if (mesh.material) {
-        const material = mesh.material as THREE.MeshStandardMaterial;
+      if (object instanceof THREE.Mesh) {
+        const material = object.material as THREE.MeshStandardMaterial;
 
         material.transparent = true;
         material.opacity = 0;
-        material.emissive?.set("#B0F5EA");
+        material.emissive.set("#B0F5EA");
 
         gsap.timeline({ repeat: -1, repeatRefresh: true }).to(material, {
           emissiveIntensity: () => intensity * 8,
           duration: () => Math.random() * 0.6,
           delay: () => Math.random() * 0.1,
         });
-      }
 
-      screenLight = mesh;
+        screenLight = object;
+      }
     }
   });
 
@@ -120,12 +116,12 @@ export function setCharTimeline(
       tl2.to(neckBone.rotation, { x: 0.6, delay: 2, duration: 3 }, 0);
     }
 
-    if (monitor?.material) {
+    if (monitor) {
       const material = monitor.material as THREE.MeshStandardMaterial;
       tl2.to(material, { opacity: 1, duration: 0.8, delay: 3.2 }, 0);
     }
 
-    if (screenLight?.material) {
+    if (screenLight) {
       const material = screenLight.material as THREE.MeshStandardMaterial;
       tl2.to(material, { opacity: 1, duration: 0.8, delay: 4.5 }, 0);
     }
@@ -152,48 +148,4 @@ export function setCharTimeline(
   }
 
   return () => clearInterval(interval);
-}
-
-export function setAllTimeline() {
-  if (typeof window === "undefined") return;
-
-  const careerTimeline = gsap.timeline({
-    scrollTrigger: {
-      trigger: ".career-section",
-      start: "top 30%",
-      end: "100% center",
-      scrub: true,
-      invalidateOnRefresh: true,
-    },
-  });
-
-  careerTimeline
-    .fromTo(
-      ".career-timeline",
-      { maxHeight: "10%" },
-      { maxHeight: "100%", duration: 0.5 },
-      0
-    )
-    .fromTo(".career-timeline", { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0)
-    .fromTo(
-      ".career-info-box",
-      { opacity: 0 },
-      { opacity: 1, stagger: 0.1, duration: 0.5 },
-      0
-    )
-    .fromTo(
-      ".career-dot",
-      { animationIterationCount: "infinite" },
-      { animationIterationCount: "1", delay: 0.3, duration: 0.1 },
-      0
-    );
-
-  if (window.innerWidth > 1024) {
-    careerTimeline.fromTo(
-      ".career-section",
-      { y: 0 },
-      { y: "20%", duration: 0.5, delay: 0.2 },
-      0
-    );
-  }
 }
